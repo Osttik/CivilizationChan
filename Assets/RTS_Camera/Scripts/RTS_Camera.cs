@@ -3,7 +3,6 @@ using System.Collections;
 
 namespace RTS_Cam
 {
-    [RequireComponent(typeof(Camera))]
     [AddComponentMenu("RTS Camera")]
     public class RTS_Camera : MonoBehaviour
     {
@@ -302,10 +301,20 @@ namespace RTS_Cam
         {
             if (!limitMap)
                 return;
-                
-            m_Transform.position = new Vector3(Mathf.Clamp(m_Transform.position.x, -limitX, limitX),
-                m_Transform.position.y,
-                Mathf.Clamp(m_Transform.position.z, -limitY, limitY));
+
+            float x = Mathf.Clamp(m_Transform.position.x, -limitX, limitX);
+            float y = Mathf.Clamp(m_Transform.position.y, -limitY, limitY);
+
+            if (limitX < 0)
+                x = m_Transform.position.x;
+
+            if (limitY < 0)
+                y = m_Transform.position.y;
+
+            m_Transform.position = new Vector3(
+                x,
+                y,
+                m_Transform.position.z);
         }
 
         /// <summary>
