@@ -9,36 +9,59 @@ public class LoopedWorld : MonoBehaviour
     [SerializeField]
     private Transform _rightEndPoint;
     [SerializeField]
+    private Transform _upEndPoint;
+    [SerializeField]
+    private Transform _downEndPoint;
+    [SerializeField]
     private float _worldWidth = -1;
     [SerializeField]
-    private float _screenSize = -1;
+    private float _worldHeight = -1;
+    [SerializeField]
+    private float _screenHeight = -1;
+    [SerializeField]
+    private float _screenWidth = -1;
     [SerializeField]
     private Camera _mainCamera;
     [SerializeField]
-    private Camera _secondaryCamera;
+    private Camera _secondaryCameraX;
+    [SerializeField]
+    private Camera _secondaryCameraY;
 
+    public Transform UpEndPoint { get { return _upEndPoint; } set { _upEndPoint = value; } }
+    public Transform DownEndPoint { get { return _downEndPoint; } set { _downEndPoint = value; } }
     public Transform LeftEndPoint { get { return _leftEndPoint; } set { _leftEndPoint = value; } }
     public Transform RightEndPoint { get { return _rightEndPoint; } set { _rightEndPoint = value; } }
     public float WorldWidth { get { return _worldWidth; } set { _worldWidth = value; } }
-    public float ScreenSize { get { return _screenSize; } set { _screenSize = value; } }
-    public Camera SecondaryCamera { get { return _secondaryCamera; } set { _secondaryCamera = value; } }
+    public float WorldHeight { get { return _worldHeight; } set { _worldHeight = value; } }
+    public float ScreenWidth { get { return _screenWidth; } set { _screenWidth = value; } }
+    public float ScreenHeight { get { return _screenHeight; } set { _screenHeight = value; } }
+    public Camera SecondaryCameraX { get { return _secondaryCameraX; } set { _secondaryCameraX = value; } }
+    public Camera SecondaryCameraY { get { return _secondaryCameraY; } set { _secondaryCameraY = value; } }
     public Camera MainCamera { get { return _mainCamera; } set { _mainCamera = value; } }
+
     private void Start()
     {
         if (MainCamera == null)
             MainCamera = Camera.main;
-        if (SecondaryCamera == null)
+        if (SecondaryCameraX == null)
         {
-            SecondaryCamera = GetComponent<Camera>();
-            SecondaryCamera.transform.parent = MainCamera.transform;
-            SecondaryCamera.clearFlags = CameraClearFlags.Nothing;
+            SecondaryCameraX = GetComponent<Camera>();
+            SecondaryCameraX.transform.parent = MainCamera.transform;
+            SecondaryCameraX.clearFlags = CameraClearFlags.Nothing;
         }
         if (WorldWidth < 0)
             WorldWidth = RightEndPoint.position.x - LeftEndPoint.position.x;
-        if (ScreenSize < 0)
+        if (WorldHeight < 0)
+            WorldWidth = UpEndPoint.position.y - DownEndPoint.position.y;
+        if (ScreenWidth < 0)
         {
             var p = MainCamera.ViewportToWorldPoint(new Vector3(0, 0.5f, -MainCamera.transform.position.z));
-            ScreenSize = (MainCamera.transform.position - p).x * 2;
+            ScreenWidth = (MainCamera.transform.position - p).x * 2;
+        }
+        if (ScreenHeight < 0)
+        {
+            var p = MainCamera.ViewportToWorldPoint(new Vector3(0, 0.5f, -MainCamera.transform.position.z));
+            ScreenHeight = (MainCamera.transform.position - p).y * 2;
         }
     }
 
@@ -46,29 +69,29 @@ public class LoopedWorld : MonoBehaviour
     {
         float worldMiddle = (RightEndPoint.transform.position.x + LeftEndPoint.transform.position.x) / 2;
         float mainCameraX = MainCamera.transform.position.x;
-        float secondaryCameraX = SecondaryCamera.transform.position.x;
+        float secondaryCameraX = SecondaryCameraX.transform.position.x;
         float maxX = Mathf.Max(mainCameraX, secondaryCameraX);
         float minX = Mathf.Min(mainCameraX, secondaryCameraX);
 
         if (!(maxX >= worldMiddle && minX <= worldMiddle))
         {
             print($"{maxX} >= {worldMiddle} && {minX} <= {worldMiddle}");
-            SwapPositions(_mainCamera, _secondaryCamera);
+            SwapPositions(_mainCamera, _secondaryCameraX);
         }
 
         var diametr = MainCamera.transform.position.x - LeftEndPoint.position.x;
-        if (diametr < ScreenSize)
+        if (diametr < ScreenWidth)
         {
-            SecondaryCamera.enabled = true;
-            SecondaryCamera.transform.localPosition = Vector3.right * WorldWidth;
+            SecondaryCameraX.enabled = true;
+            SecondaryCameraX.transform.localPosition = Vector3.right * WorldWidth;
         }
-        else if (diametr > WorldWidth - ScreenSize)
+        else if (diametr > WorldWidth - ScreenWidth)
         {
-            SecondaryCamera.enabled = true;
-            SecondaryCamera.transform.localPosition = Vector3.left * WorldWidth;
+            SecondaryCameraX.enabled = true;
+            SecondaryCameraX.transform.localPosition = Vector3.left * WorldWidth;
         }
         else
-            SecondaryCamera.enabled = false;
+            SecondaryCameraX.enabled = false;
     }
 
     private void SwapPositions(Camera main, Camera second)
@@ -83,7 +106,7 @@ public class LoopedWorld : MonoBehaviour
         {
             second.transform.localPosition = Vector3.right * WorldWidth;
         }
-        main.transform.position = SecondaryCamera.transform.position;
+        main.transform.position = SecondaryCameraX.transform.position;
         print(main.ToString() + " || " + second.ToString());
         print("To");
         //Vector3 tempPosition = first.transform.position;

@@ -9,21 +9,21 @@ public class TileManager : MonoBehaviour
     private List<GameObject> _tiles = new List<GameObject>();
     public List<GameObject> Tiles { get { return _tiles; } set { _tiles = value; } }
 
-    //private void Start()
-    //{
-    //    Vector3 bounds = Tiles[0].GetComponent<MeshRenderer>().bounds.size;
-    //    HexagonalMapCoordinates c = new HexagonalMapCoordinates(Vector3.zero, 1f, bounds.x, bounds.z);
-    //
-    //    for(int i = 0; i < 25; i++)
-    //    {
-    //        for(int j = 0; j < 5; j++)
-    //        {
-    //            var coordinates = c[i, j];
-    //            print($"({i}, {j})  ->  ({coordinates.Item1}, {coordinates.Item2})");
-    //            Instantiate(Tiles[Random.Range(0, 20)], new Vector3(coordinates.Item1, coordinates.Item2, 0f), Quaternion.Euler(240, -90, 90), transform);
-    //        }
-    //    }
-    //}
+    private void Start()
+    {
+       // Vector3 bounds = Tiles[0].GetComponent<MeshRenderer>().bounds.size;
+       // HexagonalMapCoordinates c = new HexagonalMapCoordinates(Vector3.zero, 1f, bounds.x, bounds.z);
+       //
+       // for(int i = 0; i < 75; i++)
+       // {
+       //     for(int j = 0; j < 25; j++)
+       //     {
+       //         var coordinates = c[i, j];
+       //         print($"({i}, {j})  ->  ({coordinates.Item1}, {coordinates.Item2})");
+       //         Instantiate(Tiles[Random.Range(0, 20)], new Vector3(coordinates.Item1, coordinates.Item2, 0f), Quaternion.Euler(240, -90, 90), transform);
+       //     }
+       // }
+    }
 
     public ITile GetTileByType(TileType type)
     {
