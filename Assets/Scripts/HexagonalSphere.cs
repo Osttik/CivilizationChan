@@ -1,4 +1,6 @@
 ﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Generators.Helpers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +28,7 @@ public class HexagonalSphere : MonoBehaviour
     private readonly int _numberOfSectors = 5;
     private float _tau = 1.61803399f;
     private const int _numberOfPentagons = 12;
-    private HashSet<Vector3> _points;
+    private HashSet<Point> _points;
 
     private void Start()
     {
@@ -35,28 +37,27 @@ public class HexagonalSphere : MonoBehaviour
 
     private void GenerateSphere()
     {
-        int centerCircleNumber = 5;
+        int centerCircleNumber = 25;
         float r = _hexagonalTile.GetComponent<MeshRenderer>().bounds.size.x / (2 * Mathf.Tan(Mathf.PI / ((centerCircleNumber + 1) * _numberOfSectors)));
 
         _faces = AddFaces(r);
-        _points = new HashSet<Vector3>();
+        _points = new HashSet<Point>();
         foreach (Face face in _faces)
         {
-            foreach (Vector3 point in face.SubdivideBy(centerCircleNumber + 1, r))
+            foreach (Point point in face.SubdivideBy(centerCircleNumber + 1, r))
             {
                 _points.Add(point);
             }
         }
 
-        foreach (Vector3 point in _points)
+        foreach (Point point in _points)
         {
-            LookAtCenter(Instantiate(HexagonalTile, point, new Quaternion(), transform), AdditionalHexRotation);
+            LookAt(point.LookToBySide, Instantiate(HexagonalTile, point.Position, new Quaternion(), transform), AdditionalHexRotation);
         }
 
         print(_points.Count);
         print($"Radius {r}");
     }
-
 
     private List<Face> AddFaces(float r)
     {
@@ -106,61 +107,6 @@ public class HexagonalSphere : MonoBehaviour
         return faces;
     }
 
-    private void AddCircle(int circleNumber, float step, Vector3 startPosition, bool isMain = false, PhisicalTileType phisicalTileType = PhisicalTileType.Hexagonal)
-    {
-        Vector3 position = startPosition;
-
-        int numberOfHexToPen = (circleNumber / _numberOfSectors) - 1;
-
-        for (int i = 0; i < _numberOfSectors * 2; i++) 
-        {
-            if (i % 2 == 0 && !isMain)
-            {
-                if (phisicalTileType == PhisicalTileType.Pentagonal)
-                {
-                    GameObject pentagon = Instantiate(PentagonalTile, position, new Quaternion(), transform);
-                    LookAtCenter(pentagon, AdditionalPenRotation);
-                    pentagon.transform.Rotate(Vector3.forward, 180f);
-
-                    position = Quaternion.AngleAxis(step, Vector3.up) * position;
-                }
-                else
-                {
-                    GameObject hexagon = Instantiate(HexagonalTile, position, new Quaternion(), transform);
-                    LookAtCenter(hexagon, AdditionalHexRotation);
-                    hexagon.transform.Rotate(Vector3.up, 30f);
-
-                    position = Quaternion.AngleAxis(step, Vector3.up) * position;
-                }
-            }
-            else
-            {
-                position = AddLineOfTile(HexagonalTile, AdditionalHexRotation, step, position, numberOfHexToPen);
-                position = Quaternion.AngleAxis(step, Vector3.up) * position;
-            }
-        }
-
-        //for (int i = 0; i < circleNumber; i++)
-        //{
-        //    GameObject currentTile = _hexagonalTile;
-        //    Vector3 additionalRotation = _additionHexRotation;
-        //    Vector3 position = startPosition;
-        //
-        //    if (!isMain)
-        //    {
-        //        if (numberOfHexToPen > 0 && i % (numberOfHexToPen + 1) == 0)
-        //        {
-        //            currentTile = _pentagonalTile;
-        //            additionalRotation = _additionPenRotation;
-        //        }
-        //    }
-        //
-        //    GameObject tile = Instantiate(currentTile, Quaternion.AngleAxis(i * step, Vector3.up) * position, new Quaternion(), transform);
-        //
-        //    LookAtCenter(tile, additionalRotation);
-        //}
-    }
-
     private Vector3 AddLineOfTile(GameObject tile, Vector3 additionalRotation, float step, Vector3 startPosition, int numberOfTile)
     {
         Vector3 lastPosition = Vector3.zero;
@@ -179,5 +125,16 @@ public class HexagonalSphere : MonoBehaviour
     {
         obj.transform.LookAt(transform);
         obj.transform.localRotation *= Quaternion.Euler(additionalRotation);
+    }
+
+    private void LookAt(Vector3 secondary, GameObject obj, Vector3 additionalRotation)
+    {
+        obj.transform.LookAt(transform);
+        obj.transform.rotation *= Quaternion.Euler(additionalRotation);
+        Vector3 currentUp = Vector3.Cross(secondary, obj.transform.position);
+        Vector3 lookTo = Vector3.Cross(currentUp, obj.transform.position);
+
+        obj.transform.LookAt(lookTo + obj.transform.position, obj.transform.up);
+        obj.transform.rotation *= Quaternion.Euler(30f * Vector3.up);
     }
 }

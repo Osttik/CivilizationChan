@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\Enums\PhisicalTileType.cs" />
     <Compile Include="Assets\Scripts\Enums\TileType.cs" />
     <Compile Include="Assets\Scripts\Generators\Helpers\Face.cs" />
+    <Compile Include="Assets\Scripts\Generators\Helpers\Point.cs" />
     <Compile Include="Assets\Scripts\HexagonalMapCoordinates.cs" />
     <Compile Include="Assets\Scripts\HexagonalSphere.cs" />
     <Compile Include="Assets\Scripts\LoopedWorld.cs" />
